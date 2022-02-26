@@ -42,7 +42,11 @@ height:90%;
 background:green;
 margin-left:15px;
 margin-top:15px;
-border-radius:5px;`;
+border-radius:5px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+`;
 
 const Right = Styled.div`
 width:29%;
