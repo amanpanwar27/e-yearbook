@@ -4,16 +4,60 @@ import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import "../universal.css";
 const Profile = (props)=>{
-    const [profilepic,setprofilepic] = useState(null);
-    const [crop, setCrop] = useState({ aspect: 1 / 1 })
+    const [image,setimage] = useState(null);
+    const [showmodal,setshowmodal] = useState(false);
+    //  const [crop, setCrop] = useState({ aspect: 1 / 1 })
+    // const [result,setresult] = useState(null);
+    const [crop, setCrop] = useState({
+        unit: 'px', // default, can be 'px' or '%'
+        x: 130,
+        y: 50,
+        width: 200,
+        height: 200
+      });
     const changefilehandler = (e)=>{
-        setprofilepic(URL.createObjectURL(e.target.files[0]));
+        setimage(URL.createObjectURL(e.target.files[0]));
+        setshowmodal(true);
     }
+     const getCroppedImg = (image,crop)=>{
+         console.log("its been called");
+        const canvas = document.createElement("canvas");
+        const scaleX = image.naturalWidth / image.width;
+        const scaleY = image.naturalHeight / image.height;
+        const ctx = canvas.getContext("2d");
+      
+        const pixelRatio = window.devicePixelRatio || 1;
+      
+        canvas.width = crop.width * pixelRatio;
+        canvas.height = crop.height * pixelRatio;
+      
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        ctx.imageSmoothingQuality = "high";
+      
+        ctx.drawImage(
+          image,
+          crop.x * scaleX,
+          crop.y * scaleY,
+          crop.width * scaleX,
+          crop.height * scaleY,
+          0,
+          0,
+          crop.width,
+          crop.height
+        );
+        const base64Image = canvas.toDataURL("image/jpeg");
+        setimage(base64Image);
+        setshowmodal(false);
+        }
     return <div>
     <Top>
     </Top>
-    {profilepic && <Modal>
-        <div> <ReactCrop src={profilepic} crop={crop} onChange={newCrop => setCrop(newCrop)} /></div>
+    {showmodal && <Modal>
+        <Buttons>
+        <button onClick={()=>{getCroppedImg(image,crop)}}>SAVE</button>
+        <span><img src="/testpics/delete-button.png" onClick={()=>{setshowmodal(false)}}/></span>
+        </Buttons>
+        <div><ReactCrop src={image} crop={crop} onChange={newCrop => setCrop(newCrop)} /></div>
         </Modal>}
     <Container>
     <Left></Left>
@@ -26,10 +70,33 @@ const Profile = (props)=>{
     <Right></Right>
     <input type="file" accept="image/*" id="input-pic" onChange={(e)=>changefilehandler(e)}/>
     </Container>
-   
     </div>
 }
+const Buttons = Styled.div`
+position:relative;
+display:flex;
+flex-direction:row;
+justify-content:flex-end;
+width:100vw;
+padding-left:98%;
+height:40px;
+&>button{
+    height:40px;
+    margin-top:10px;
+   
+}
 
+&>span{
+    img{
+    width:30px;
+    height:30px;
+    margin-top:6px;
+    }
+    margin-left:100px;
+    margin-top:10px;
+}
+
+`;
 const Modal = Styled.div`
 position:   fixed;
 top:0;
@@ -42,7 +109,7 @@ z-index:1000;
     width:300px;
     height:300px;
     margin:auto;
-    margin-top:10%;
+    /* margin-top:10%; */
 }
 `;
 const Avatar = Styled.div`
